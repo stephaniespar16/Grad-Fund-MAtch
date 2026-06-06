@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Graduate External Funding Matcher</title>
+  <style>
+    :root {
+      --ink: #17211f;
+      --muted: #64716d;
+      --line: #d9e1dd;
+      --panel: #f7faf8;
+      --paper: #ffffff;
+      --blue: #2864a6;
+      --green: #28785f;
+      --amber: #8a5a10;
+      --rose: #a33f50;
+      --shadow: 0 14px 38px rgba(17, 33, 29, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #eef4f1;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 410px) 1fr;
+    }
+
+    aside {
+      background: var(--paper);
+      border-right: 1px solid var(--line);
+      padding: 24px;
+      overflow: auto;
+    }
+
+    main {
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #b7cbc4;
+      background: #e8f3ee;
+      color: var(--green);
+      font-weight: 800;
+      border-radius: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section-title {
+      margin: 22px 0 10px;
+      font-size: 12px;
+      color: #52615d;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 12px 0 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd8d3;
+      background: #fbfdfc;
+      color: var(--ink);
+      border-radius: 7px;
+      padding: 10px 11px;
+      min-height: 42px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(40, 100, 166, .14);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .check {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #d5dfdb;
+      border-radius: 7px;
+      padding: 8px 9px;
+      background: #fbfdfc;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .check input {
+      width: 16px;
+      min-height: 16px;
+      margin: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(to top, #fff 75%, rgba(255,255,255,0));
+      padding-top: 18px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 7px;
+      min-height: 42px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 800;
+      color: #fff;
+      background: var(--green);
+    }
+
+    .btn.secondary {
+      background: #edf3f0;
+      color: #28423b;
+      border: 1px solid #ccdad5;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric, .result, .source-row, .empty {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 14px;
+      min-height: 82px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 27px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      border: 1px solid #cbd8d3;
+      background: #fbfdfc;
+      color: #314641;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      background: #dceee6;
+      border-color: #9bbdaf;
+      color: #173d31;
+    }
+
+    .results {
+      display: grid;
+      gap: 12px;
+    }
+
+    .result {
+      padding: 16px;
+    }
+
+    .result-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .score {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 7px solid #a7d4c0;
+      font-size: 21px;
+      font-weight: 900;
+      color: #153a30;
+      background: #f5fbf8;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #eef4f1;
+      border: 1px solid #d6e2dd;
+      color: #314641;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .pill.deadline { background: #fff5df; border-color: #eed49a; color: var(--amber); }
+    .pill.value { background: #e7f0fb; border-color: #bdd2ed; color: var(--blue); }
+    .pill.top { background: #e8f4ee; border-color: #afcfbf; color: var(--green); }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .detail {
+      background: var(--panel);
+      border: 1px solid #dce5e1;
+      border-radius: 7px;
+      padding: 10px;
+      min-height: 74px;
+    }
+
+    .detail b {
+      display: block;
+      font-size: 12px;
+      color: #52615d;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      margin-bottom: 5px;
+    }
+
+    .detail span, .detail ul {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+      color: #22332f;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .why {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .why ul {
+      margin: 7px 0 0;
+      padding-left: 18px;
+      color: #334a45;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .source-panel {
+      margin-top: 22px;
+    }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      align-items: center;
+      box-shadow: none;
+    }
+
+    .source-row b { display: block; }
+    .source-row span { color: var(--muted); font-size: 13px; }
+
+    .badge {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #eef4f1;
+      border: 1px solid #d4dfda;
+      font-weight: 800;
+      font-size: 12px;
+      color: #334a45;
+      max-width: 280px;
+      text-align: right;
+    }
+
+    .empty {
+      padding: 22px;
+      color: var(--muted);
+    }
+
+    .fineprint {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--line); }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+      .detail-grid, .why { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      aside, main { padding: 16px; }
+      .grid-2, .check-grid, .summary { grid-template-columns: 1fr; }
+      .result-head { grid-template-columns: 1fr; }
+      .score { width: 70px; height: 70px; font-size: 18px; }
+      .topbar { display: block; }
+      .badge { max-width: none; text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="mark" aria-hidden="true">GF</div>
+        <div>
+          <h1>Graduate Funding Matcher</h1>
+          <p class="subtitle">External, non-loan awards only</p>
+        </div>
+      </div>
+
+      <form id="profileForm">
+        <div class="section-title">Student Profile</div>
+        <div class="grid-2">
+          <div>
+            <label for="degree">Degree level</label>
+            <select id="degree">
+              <option>Doctoral</option>
+              <option>Master's</option>
+              <option>Professional Doctorate</option>
+              <option>Graduate Certificate</option>
+            </select>
+          </div>
+          <div>
+            <label for="stage">Stage</label>
+            <select id="stage">
+              <option>Coursework</option>
+              <option>Research</option>
+              <option>Dissertation</option>
+              <option>Clinical placement</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="field">Field of study</label>
+        <select id="field">
+          <option>Education</option>
+          <option>Public Health</option>
+          <option>STEM</option>
+          <option>Social Sciences</option>
+          <option>Humanities</option>
+          <option>Business</option>
+          <option>Law</option>
+          <option>Arts</option>
+        </select>
+
+        <label for="keywords">Research interests or keywords</label>
+        <textarea id="keywords">education policy, equity, rural access, evaluation</textarea>
+
+        <div class="grid-2">
+          <div>
+            <label for="citizenship">Citizenship</label>
+            <select id="citizenship">
+              <option>U.S. citizen</option>
+              <option>Permanent resident</option>
+              <option>International student</option>
+              <option>DACA/TPS recipient</option>
+            </select>
+          </div>
+          <div>
+            <label for="residency">Residency</label>
+            <select id="residency">
+              <option>Any U.S. state</option>
+              <option>Alabama</option>
+              <option>Alaska</option>
+              <option>Arizona</option>
+              <option>Arkansas</option>
+              <option>California</option>
+              <option>Colorado</option>
+              <option>Connecticut</option>
+              <option>Delaware</option>
+              <option>Florida</option>
+              <option>Georgia</option>
+              <option>Hawaii</option>
+              <option>Idaho</option>
+              <option>Illinois</option>
+              <option>Indiana</option>
+              <option>Iowa</option>
+              <option>Kansas</option>
+              <option>Kentucky</option>
+              <option>Louisiana</option>
+              <option>Maine</option>
+              <option>Maryland</option>
+              <option>Massachusetts</option>
+              <option>Michigan</option>
+              <option>Minnesota</option>
+              <option>Mississippi</option>
+              <option>Missouri</option>
+              <option>Montana</option>
+              <option>Nebraska</option>
+              <option>Nevada</option>
+              <option>New Hampshire</option>
+              <option>New Jersey</option>
+              <option>New Mexico</option>
+              <option>New York</option>
+              <option>North Carolina</option>
+              <option>North Dakota</option>
+              <option>Ohio</option>
+              <option>Oklahoma</option>
+              <option>Oregon</option>
+              <option>Pennsylvania</option>
+              <option>Rhode Island</option>
+              <option>South Carolina</option>
+              <option>South Dakota</option>
+              <option>Tennessee</option>
+              <option>Texas</option>
+              <option>Utah</option>
+              <option>Vermont</option>
+              <option>Virginia</option>
+              <option>Washington</option>
+              <option>West Virginia</option>
+              <option>Wisconsin</option>
+              <option>Wyoming</option>
+              <option>Midwest region</option>
+              <option>International</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="age">Age</label>
+            <input id="age" type="number" min="16" max="90" value="29">
+          </div>
+          <div>
+            <label for="race">Race/ethnicity</label>
+            <select id="race">
+              <option>Prefer not to say</option>
+              <option selected>Black/African American</option>
+              <option>Hispanic/Latino</option>
+              <option>Indigenous/Native American</option>
+              <option>Asian American/Pacific Islander</option>
+              <option>Multiracial</option>
+              <option>White</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="gpa">GPA</label>
+            <input id="gpa" type="number" min="0" max="4" step=".01" value="3.65">
+          </div>
+          <div>
+            <label for="enrollment">Enrollment</label>
+            <select id="enrollment">
+              <option>Full-time</option>
+              <option>Part-time</option>
+              <option>Online</option>
+              <option>Hybrid</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="term">Funding term needed</label>
+        <select id="term">
+          <option>Fall 2026</option>
+          <option>Spring 2027</option>
+          <option>Summer 2027</option>
+          <option>Academic Year 2026-27</option>
+        </select>
+
+        <div class="section-title">Funding Purpose</div>
+        <div class="check-grid" id="purposeGrid">
+          <label class="check"><input type="checkbox" value="tuition" checked> Tuition</label>
+          <label class="check"><input type="checkbox" value="research" checked> Research</label>
+          <label class="check"><input type="checkbox" value="travel"> Travel</label>
+          <label class="check"><input type="checkbox" value="living" checked> Living costs</label>
+          <label class="check"><input type="checkbox" value="fieldwork"> Fieldwork</label>
+          <label class="check"><input type="checkbox" value="conference"> Conference</label>
+        </div>
+
+        <div class="section-title">Application Preferences</div>
+        <div class="grid-2">
+          <div>
+            <label for="maxEffort">Maximum effort</label>
+            <select id="maxEffort">
+              <option>High</option>
+              <option selected>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+          <div>
+            <label for="deadlineWindow">Deadline window</label>
+            <select id="deadlineWindow">
+              <option>Any deadline</option>
+              <option selected>Next 120 days</option>
+              <option>Next 60 days</option>
+              <option>Next 30 days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn" type="submit" title="Run eligible-only matching">Run Match</button>
+          <button class="btn secondary" type="button" id="resetBtn" title="Restore the sample graduate student profile">Reset</button>
+        </div>
+        <p class="fineprint">Age and race/ethnicity are optional matching fields. They are used only when an award has a requirement or preference tied to those criteria.</p>
+      </form>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h1>Prioritized Eligible Awards</h1>
+          <p class="subtitle">Known-ineligible awards are removed before scoring. Sample records demonstrate the data model and workflow.</p>
+        </div>
+      </div>
+
+      <section class="summary" aria-label="Match summary">
+        <div class="metric"><strong id="eligibleCount">0</strong><span>Eligible matches</span></div>
+        <div class="metric"><strong id="hiddenCount">0</strong><span>Filtered out</span></div>
+        <div class="metric"><strong id="topScore">0%</strong><span>Top match quality</span></div>
+        <div class="metric"><strong id="soonCount">0</strong><span>Deadlines soon</span></div>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Result groups">
+        <button class="tab active" data-filter="all" type="button">All Eligible</button>
+        <button class="tab" data-filter="Top Match" type="button">Top Matches</button>
+        <button class="tab" data-filter="High Value" type="button">High Value</button>
+        <button class="tab" data-filter="Quick Application" type="button">Quick Applications</button>
+        <button class="tab" data-filter="Deadline Soon" type="button">Deadline Soon</button>
+      </div>
+
+      <section id="results" class="results" aria-live="polite"></section>
+
+      <section class="source-panel">
+        <div class="section-title">Sourcing and Verification Queue</div>
+        <div id="sources"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const today = new Date("2026-06-06T12:00:00-04:00");
+
+    const sourceRegistry = [
+      {
+        name: "Fastweb",
+        role: "Broad scholarship discovery and candidate intake",
+        reliability: "Aggregator source; verify against official award page"
+      },
+      {
+        name: "GoGrad",
+        role: "Graduate-student-oriented scholarship discovery",
+        reliability: "Directory source; verify deadline and criteria"
+      },
+      {
+        name: "National fellowship databases",
+        role: "Government, foundation, and academic fellowship leads",
+        reliability: "Useful for discovery; official sponsor page is authoritative"
+      },
+      {
+        name: "ProFellow",
+        role: "Fellowship and fully funded graduate opportunity discovery",
+        reliability: "Strong fellowship lead source; verify current cycle"
+      },
+      {
+        name: "PIVOT-RP",
+        role: "Research grants, fellowships, and sponsor opportunities",
+        reliability: "High-quality research funding index; verify sponsor page"
+      },
+      {
+        name: "Scholarship-specific websites",
+        role: "Application, deadline, award amount, and eligibility confirmation",
+        reliability: "Authoritative source for final displayed details"
+      }
+    ];
+
+    const opportunities = [
+      {
+        id: "ed-equity-fellowship",
+        name: "Rural Education Equity Graduate Fellowship",
+        sponsor: "Sample Foundation for Learning Access",
+        source: "ProFellow lead plus official sponsor page",
+        officialUrl: "https://example.org/rural-education-equity",
+        sourceStatus: "Illustrative sample",
+        external: true,
+        nonLoan: true,
+        graduateOnly: true,
+        degreeLevels: ["Doctoral", "Master's"],
+        stages: ["Research", "Dissertation", "Coursework"],
+        fields: ["Education", "Social Sciences"],
+        keywords: ["education policy", "equity", "rural access", "evaluation"],
+        citizenship: ["U.S. citizen", "Permanent resident", "DACA/TPS recipient"],
+        residency: ["Any U.S. state"],
+        age: { min: 21, max: 40, type: "preference" },
+        raceEthnicity: { values: ["Black/African American", "Hispanic/Latino", "Indigenous/Native American", "Multiracial"], type: "preference" },
+        minGpa: 3.2,
+        enrollment: ["Full-time", "Part-time"],
+        purposes: ["tuition", "research", "living"],
+        amount: 12000,
+        competitiveness: "High",
+        effort: "Medium",
+        renewable: true,
+        deadlines: [
+          { term: "Fall 2026", opens: "2026-01-15", deadline: "2026-08-15", notification: "2026-09-20", appliesTo: "Fall 2026 stipend and tuition support" },
+          { term: "Academic Year 2026-27", opens: "2026-01-15", deadline: "2026-08-15", notification: "2026-09-20", appliesTo: "2026-27 academic year" }
+        ],
+        requirements: ["Essay", "CV", "Transcript", "Two recommendations"]
+      },
+      {
+        id: "public-health-practice",
+        name: "Community Health Practice Graduate Grant",
+        sponsor: "Sample Public Health Alliance",
+        source: "GoGrad listing plus official sponsor page",
+        officialUrl: "https://example.org/community-health-grant",
+        sourceStatus: "Illustrative sample",
+        external: true,
+        nonLoan: true,
+        graduateOnly: true,
+        degreeLevels: ["Master's", "Doctoral", "Professional Doctorate"],
+        stages: ["Coursework", "Clinical placement", "Research"],
+        fields: ["Public Health", "Social Sciences"],
+        keywords: ["community health", "evaluation", "health equity", "rural"],
+        citizenship: ["U.S. citizen", "Permanent resident", "International student"],
+        residency: ["Any U.S. state"],
+        age: { min: 18, max: null, type: "required" },
+        raceEthnicity: { values: [], type: "open" },
+        minGpa: 3,
+        enrollment: ["Full-time", "Part-time", "Online", "Hybrid"],
+        purposes: ["tuition", "fieldwork", "research", "conference"],
+        amount: 6500,
+        competitiveness: "Medium",
+        effort: "Low",
+        renewable: false,
+        deadlines: [
+          { term: "Spring 2027", opens: "2026-08-01", deadline: "2026-10-15", notification: "2026-12-01", appliesTo: "Spring 2027 tuition, practicum, or fieldwork" },
+          { term: "Summer 2027", opens: "2027-01-05", deadline: "2027-03-01", notification: "2027-04-15", appliesTo: "Summer practicum or fieldwork" }
+        ],
+        requirements: ["Short statement", "Budget", "Enrollment verification"]
+      },
+      {
+        id: "stem-dissertation",
+        name: "Advanced STEM Dissertation Completion Award",
+        sponsor: "Sample Research Advancement Trust",
+        source: "PIVOT-RP lead plus sponsor funding notice",
+        officialUrl: "https://example.org/stem-dissertation-award",
+        sourceStatus: "Illustrative sample",
+        external: true,
+        nonLoan: true,
+        graduateOnly: true,
+        degreeLevels: ["Doctoral"],
+        stages: ["Dissertation"],
+        fields: ["STEM"],
+        keywords: ["data science", "engineering", "biomedical", "materials"],
+        citizenship: ["U.S. citizen", "Permanent resident", "International student"],
+        residency: ["Any U.S. state", "International"],
+        age: { min: null, max: null, type: "open" },
+        raceEthnicity: { values: [], type: "open" },
+        minGpa: 3.4,
+        enrollment: ["Full-time"],
+        purposes: ["research", "living"],
+        amount: 25000,
+        competitiveness: "High",
+        effort: "High",
+        renewable: false,
+        deadlines: [
+          { term: "Academic Year 2026-27", opens: "2026-05-01", deadline: "2026-09-10", notification: "2026-11-01", appliesTo: "Dissertation completion year" }
+        ],
+        requirements: ["Research proposal", "CV", "Transcript", "Three recommendations", "Advisor statement"]
+      },
+      {
+        id: "midcareer-leadership",
+        name: "Mid-Career Leadership Endowment Award",
+        sponsor: "Sample Civic Leadership Fund",
+        source: "Fastweb listing plus official endowment page",
+        officialUrl: "https://example.org/midcareer-leadership",
+        sourceStatus: "Illustrative sample",
+        external: true,
+        nonLoan: true,
+        graduateOnly: true,
+        degreeLevels: ["Master's", "Professional Doctorate", "Doctoral"],
+        stages: ["Coursework", "Research", "Clinical placement"],
+        fields: ["Education", "Business", "Law", "Public Health", "Social Sciences"],
+        keywords: ["leadership", "public service", "equity", "policy"],
+        citizenship: ["U.S. citizen", "Permanent resident"],
+        residency: ["Any U.S. state"],
+        age: { min: 30, max: null, type: "required" },
+        raceEthnicity: { values: [], type: "open" },
+        minGpa: 3,
+        enrollment: ["Full-time", "Part-time", "Hybrid"],
+        purposes: ["tuition", "living"],
+        amount: 9000,
+        competitiveness: "Medium",
+        effort: "Medium",
+        renewable: true,
+        deadlines: [
+          { term: "Fall 2026", opens: "2026-03-01", deadline: "2026-07-01", notification: "2026-08-01", appliesTo: "Fall 2026 tuition or living expenses" }
+        ],
+        requirements: ["Essay", "Resume", "One recommendation"]
+      },
+      {
+        id: "humanities-travel",
+        name: "Graduate Humanities Research Travel Grant",
+        sponsor: "Sample Humanities Council",
+        source: "National fellowship database plus official sponsor page",
+        officialUrl: "https://example.org/humanities-travel-grant",
+        sourceStatus: "Illustrative sample",
+        external: true,
+        nonLoan: true,
+        graduateOnly: true,
+        degreeLevels: ["Doctoral", "Master's"],
+        stages: ["Research", "Dissertation"],
+        fields: ["Humanities", "Arts"],
+        keywords: ["archive", "history", "language", "fieldwork"],
+        citizenship: ["U.S. citizen", "Permanent resident", "International student"],
+        residency: ["Any U.S. state", "International"],
+        age: { min: null, max: null, type: "open" },
+        raceEthnicity: { values: [], type: "open" },
+        minGpa: 3.1,
+        enrollment: ["Full-time", "Part-time"],
+        purposes: ["travel", "research", "fieldwork", "conference"],
+        amount: 3000,
+        competitiveness: "Low",
+        effort: "Low",
+        renewable: false,
+        deadlines: [
+          { term: "Summer 2027", opens: "2027-01-15", deadline: "2027-02-28", notification: "2027-04-01", appliesTo: "Summer 2027 research travel" }
+        ],
+        requirements: ["Research itinerary", "Budget", "Faculty confirmation"]
+      },
+      {
+        id: "loan-example",
+        name: "Graduate Professional Advancement Loan",
+        sponsor: "Sample Finance Partner",
+        source: "Aggregator listing",
+        officialUrl: "https://example.org/loan",
+        sourceStatus: "Filtered sample",
+        external: true,
+        nonLoan: false,
+        graduateOnly: true,
+        degreeLevels: ["Master's", "Doctoral", "Professional Doctorate"],
+        stages: ["Coursework", "Research", "Dissertation", "Clinical placement"],
+        fields: ["Education", "Public Health", "STEM", "Social Sciences", "Humanities", "Business", "Law", "Arts"],
+        keywords: [],
+        citizenship: ["U.S. citizen"],
+        residency: ["Any U.S. state"],
+        age: { min: null, max: null, type: "open" },
+        raceEthnicity: { values: [], type: "open" },
+        minGpa: 0,
+        enrollment: ["Full-time", "Part-time", "Online", "Hybrid"],
+        purposes: ["tuition"],
+        amount: 15000,
+        competitiveness: "Low",
+        effort: "Low",
+        renewable: false,
+        deadlines: [{ term: "Fall 2026", opens: "2026-01-01", deadline: "2026-12-31", notification: "Rolling", appliesTo: "Loan product" }],
+        requirements: ["Credit application"]
+      }
+    ];
+
+    const effortRank = { Low: 1, Medium: 2, High: 3 };
+    let activeFilter = "all";
+    let lastMatches = [];
+
+    function getProfile() {
+      return {
+        degree: value("degree"),
+        stage: value("stage"),
+        field: value("field"),
+        keywords: value("keywords").toLowerCase().split(/[,;\n]+/).map(v => v.trim()).filter(Boolean),
+        citizenship: value("citizenship"),
+        residency: value("residency"),
+        age: Number(value("age")),
+        race: value("race"),
+        gpa: Number(value("gpa")),
+        enrollment: value("enrollment"),
+        term: value("term"),
+        purposes: checkedValues("purposeGrid"),
+        maxEffort: value("maxEffort"),
+        deadlineWindow: value("deadlineWindow")
+      };
+    }
+
+    function value(id) {
+      return document.getElementById(id).value;
+    }
+
+    function checkedValues(id) {
+      return [...document.querySelectorAll(`#${id} input:checked`)].map(input => input.value);
+    }
+
+    function matchingDeadline(opp, term) {
+      return opp.deadlines.find(d => d.term === term);
+    }
+
+    function daysUntil(dateText) {
+      const date = new Date(dateText + "T23:59:00-04:00");
+      return Math.ceil((date - today) / 86400000);
+    }
+
+    function withinWindow(deadline, windowLabel) {
+      if (windowLabel === "Any deadline") return true;
+      const days = daysUntil(deadline.deadline);
+      if (windowLabel === "Next 120 days") return days >= 0 && days <= 120;
+      if (windowLabel === "Next 60 days") return days >= 0 && days <= 60;
+      if (windowLabel === "Next 30 days") return days >= 0 && days <= 30;
+      return true;
+    }
+
+    function eligible(opp, profile) {
+      const deadline = matchingDeadline(opp, profile.term);
+      const reasons = [];
+
+      if (!opp.external) reasons.push("Not an external funding source");
+      if (!opp.nonLoan) reasons.push("Repayable or loan-based funding");
+      if (!opp.graduateOnly) reasons.push("Not limited to or clearly eligible for graduate students");
+      if (!opp.degreeLevels.includes(profile.degree)) reasons.push("Degree level does not meet required criteria");
+      if (!opp.stages.includes(profile.stage)) reasons.push("Current graduate stage does not meet required criteria");
+      if (!opp.fields.includes(profile.field)) reasons.push("Field of study is not eligible");
+      if (!opp.citizenship.includes(profile.citizenship)) reasons.push("Citizenship status is not eligible");
+      if (!(opp.residency.includes(profile.residency) || opp.residency.includes("Any U.S. state"))) reasons.push("Residency is not eligible");
+      if (opp.age.min !== null && opp.age.type === "required" && profile.age < opp.age.min) reasons.push("Age is below required minimum");
+      if (opp.age.max !== null && opp.age.type === "required" && profile.age > opp.age.max) reasons.push("Age is above required maximum");
+      if (opp.raceEthnicity.type === "required" && !opp.raceEthnicity.values.includes(profile.race)) reasons.push("Race/ethnicity requirement is not met");
+      if (profile.gpa < opp.minGpa) reasons.push("GPA is below minimum");
+      if (!opp.enrollment.includes(profile.enrollment)) reasons.push("Enrollment status is not eligible");
+      if (!profile.purposes.some(p => opp.purposes.includes(p))) reasons.push("Funding purpose does not match");
+      if (!deadline) reasons.push("No deadline for selected award term");
+      if (deadline && !withinWindow(deadline, profile.deadlineWindow)) reasons.push("Deadline is outside selected window");
+      if (effortRank[opp.effort] > effortRank[profile.maxEffort]) reasons.push("Application effort is above selected maximum");
+
+      return { ok: reasons.length === 0, reasons, deadline };
+    }
+
+    function score(opp, profile, deadline) {
+      let points = 45;
+      const why = [];
+      const cautions = [];
+      const keywordHits = profile.keywords.filter(k => opp.keywords.some(ok => ok.includes(k) || k.includes(ok)));
+      const purposeHits = profile.purposes.filter(p => opp.purposes.includes(p));
+
+      points += 12;
+      why.push(`${profile.degree} students in ${profile.field} are eligible`);
+
+      if (keywordHits.length) {
+        const add = Math.min(18, keywordHits.length * 6);
+        points += add;
+        why.push(`Research alignment: ${keywordHits.join(", ")}`);
+      } else {
+        cautions.push("No direct keyword match; review sponsor language before applying");
+      }
+
+      if (purposeHits.length) {
+        points += Math.min(12, purposeHits.length * 4);
+        why.push(`Funding purpose fit: ${purposeHits.join(", ")}`);
+      }
+
+      if (opp.raceEthnicity.values.includes(profile.race)) {
+        points += opp.raceEthnicity.type === "required" ? 8 : 5;
+        why.push(`Optional demographic fit: ${profile.race}`);
+      }
+
+      if (opp.age.type === "preference" && (!opp.age.min || profile.age >= opp.age.min) && (!opp.age.max || profile.age <= opp.age.max)) {
+        points += 4;
+        why.push("Age fits a stated preference");
+      }
+
+      if (profile.gpa >= opp.minGpa + .3) points += 5;
+      if (opp.amount >= 10000) points += 6;
+      if (opp.renewable) points += 4;
+      if (opp.effort === "Low") points += 5;
+      if (opp.effort === "High") cautions.push("High-effort application package");
+
+      const days = daysUntil(deadline.deadline);
+      if (days <= 30) {
+        points += 5;
+        why.push("Deadline is within 30 days");
+      } else if (days <= 90) {
+        points += 3;
+        why.push("Deadline is upcoming this cycle");
+      }
+
+      const matchScore = Math.max(0, Math.min(100, points));
+      return { matchScore, why, cautions };
+    }
+
+    function categories(match) {
+      const cats = [];
+      if (match.matchScore >= 85) cats.push("Top Match");
+      if (match.opp.amount >= 10000) cats.push("High Value");
+      if (match.opp.effort === "Low") cats.push("Quick Application");
+      if (daysUntil(match.deadline.deadline) <= 60) cats.push("Deadline Soon");
+      if (match.opp.renewable) cats.push("Renewable");
+      return cats.length ? cats : ["Eligible"];
+    }
+
+    function runMatch() {
+      const profile = getProfile();
+      const hidden = [];
+      const matches = [];
+
+      opportunities.forEach(opp => {
+        const check = eligible(opp, profile);
+        if (!check.ok) {
+          hidden.push({ opp, reasons: check.reasons });
+          return;
+        }
+        const scored = score(opp, profile, check.deadline);
+        const match = { opp, deadline: check.deadline, ...scored };
+        match.categories = categories(match);
+        matches.push(match);
+      });
+
+      matches.sort((a, b) => b.matchScore - a.matchScore || a.opp.effort.localeCompare(b.opp.effort));
+      lastMatches = matches;
+      updateSummary(matches, hidden);
+      renderResults();
+    }
+
+    function updateSummary(matches, hidden) {
+      document.getElementById("eligibleCount").textContent = matches.length;
+      document.getElementById("hiddenCount").textContent = hidden.length;
+      document.getElementById("topScore").textContent = matches.length ? `${matches[0].matchScore}%` : "0%";
+      document.getElementById("soonCount").textContent = matches.filter(m => daysUntil(m.deadline.deadline) <= 60).length;
+    }
+
+    function renderResults() {
+      const target = document.getElementById("results");
+      const filtered = activeFilter === "all" ? lastMatches : lastMatches.filter(m => m.categories.includes(activeFilter));
+      if (!filtered.length) {
+        target.innerHTML = `<div class="empty"><b>No eligible awards in this view.</b><br>Adjust the student profile, selected term, deadline window, or application effort to broaden the match set.</div>`;
+        return;
+      }
+
+      target.innerHTML = filtered.map(m => {
+        const days = daysUntil(m.deadline.deadline);
+        const deadlineLabel = `${formatDate(m.deadline.deadline)} (${days} days)`;
+        return `
+          <article class="result">
+            <div class="result-head">
+              <div>
+                <h2>${m.opp.name}</h2>
+                <div class="meta">${m.opp.sponsor} · ${m.opp.source}</div>
+              </div>
+              <div class="score" aria-label="Match score ${m.matchScore} percent">${m.matchScore}%</div>
+            </div>
+            <div class="pill-row">
+              ${m.categories.map(c => `<span class="pill ${pillClass(c)}">${c}</span>`).join("")}
+              <span class="pill deadline">${m.deadline.term}: ${deadlineLabel}</span>
+              <span class="pill value">${currency(m.opp.amount)}</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail"><b>Award Term</b><span>${m.deadline.appliesTo}<br>Notification: ${m.deadline.notification}</span></div>
+              <div class="detail"><b>Application</b><span>${m.opp.effort} effort · ${m.opp.competitiveness} competitiveness<br>${m.opp.requirements.join(", ")}</span></div>
+              <div class="detail"><b>Verification</b><span>${m.opp.sourceStatus}<br><a href="${m.opp.officialUrl}" target="_blank" rel="noreferrer">Official award page</a></span></div>
+            </div>
+            <div class="why">
+              <div class="detail">
+                <b>Why this matches</b>
+                <ul>${m.why.map(item => `<li>${item}</li>`).join("")}</ul>
+              </div>
+              <div class="detail">
+                <b>Review before applying</b>
+                <ul>${(m.cautions.length ? m.cautions : ["No major cautions from the profile match"]).map(item => `<li>${item}</li>`).join("")}</ul>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSources() {
+      document.getElementById("sources").innerHTML = sourceRegistry.map(source => `
+        <div class="source-row">
+          <div><b>${source.name}</b><span>${source.role}</span></div>
+          <span class="badge">${source.reliability}</span>
+        </div>
+      `).join("");
+    }
+
+    function formatDate(dateText) {
+      const date = new Date(dateText + "T12:00:00-04:00");
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function currency(amount) {
+      return amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    }
+
+    function pillClass(category) {
+      if (category === "Top Match") return "top";
+      if (category === "Deadline Soon") return "deadline";
+      if (category === "High Value") return "value";
+      return "";
+    }
+
+    document.getElementById("profileForm").addEventListener("submit", event => {
+      event.preventDefault();
+      runMatch();
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("degree").value = "Doctoral";
+      document.getElementById("stage").value = "Coursework";
+      document.getElementById("field").value = "Education";
+      document.getElementById("keywords").value = "education policy, equity, rural access, evaluation";
+      document.getElementById("citizenship").value = "U.S. citizen";
+      document.getElementById("residency").value = "Any U.S. state";
+      document.getElementById("age").value = "29";
+      document.getElementById("race").value = "Black/African American";
+      document.getElementById("gpa").value = "3.65";
+      document.getElementById("enrollment").value = "Full-time";
+      document.getElementById("term").value = "Fall 2026";
+      document.getElementById("maxEffort").value = "Medium";
+      document.getElementById("deadlineWindow").value = "Next 120 days";
+      document.querySelectorAll("#purposeGrid input").forEach(input => {
+        input.checked = ["tuition", "research", "living"].includes(input.value);
+      });
+      runMatch();
+    });
+
+    document.querySelectorAll(".tab").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        renderResults();
+      });
+    });
+
+    renderSources();
+    runMatch();
+  </script>
+</body>
+</html>
